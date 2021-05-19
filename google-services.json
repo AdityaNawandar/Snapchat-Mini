@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "648693462991",
+    "project_id": "snapchat-mini-dadda",
+    "storage_bucket": "snapchat-mini-dadda.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:648693462991:android:a0ebf5668d4d584acec4ba",
+        "android_client_info": {
+          "package_name": "com.example.snapchatmini"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "648693462991-bqsn7f8sh22hid63fhn1di53cmqhtquv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCp3dHyoLJQPvYb5MpeQ_lM8mpz5nYeS5I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "648693462991-bqsn7f8sh22hid63fhn1di53cmqhtquv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
