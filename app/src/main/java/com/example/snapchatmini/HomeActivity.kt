@@ -16,13 +16,11 @@ import com.google.firebase.auth.FirebaseUser
 import java.io.ByteArrayOutputStream
 
 class HomeActivity : AppCompatActivity() {
-    var currentUser = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-/*
-        var intent = intent
-        var currentUser = intent.extras*/
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -59,46 +57,12 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        val selectedImage = data!!.data
-        try {
-            if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
-/*                val objBitmap =
-                    MediaStore.Images.Media.getBitmap(this.contentResolver, selectedImage)
-                val outStream = ByteArrayOutputStream()
-                objBitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream)
-                val bytarrStream = outStream.toByteArray()
-                val parseFile = ParseFile("image.png", bytarrStream)
-                val parseObject = ParseObject("Image")
-                parseObject.put("image", parseFile)
-                parseObject.put("username", strCurrentUser)
-                parseObject.saveInBackground(object : SaveCallback() {
-                    fun done(e: ParseException?) {
-                        if (e == null) {
-                            Toast.makeText(
-                                this@UserListActivity,
-                                "Image has been shared!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                })
-                Log.i("", "")*/
-            } else {
-                Toast.makeText(
-                    this,
-                    "There has been an issue uploading the image :(",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
+
 
     private fun getPhoto() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, 1)
+        val intent = Intent(applicationContext, SnapActivity::class.java)
+
+        startActivity(intent)
+
     }
 }
