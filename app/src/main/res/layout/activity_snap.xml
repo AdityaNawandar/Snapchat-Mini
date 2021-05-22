@@ -46,11 +46,11 @@
             android:layout_height="20dp" />
 
         <EditText
-            android:id="@+id/editTextTextPersonName"
+            android:id="@+id/edttxtMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Note"
+            android:hint="Message"
             android:inputType="textPersonName" />
 
         <Button

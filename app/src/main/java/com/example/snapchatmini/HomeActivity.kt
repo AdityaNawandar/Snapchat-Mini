@@ -57,12 +57,9 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-
-
     private fun getPhoto() {
         val intent = Intent(applicationContext, SnapActivity::class.java)
-
         startActivity(intent)
-
     }
+
 }

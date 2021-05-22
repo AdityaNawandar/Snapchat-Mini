@@ -1,20 +1,18 @@
 package com.example.snapchatmini
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
-
-import kotlin.collections.ArrayList
-import android.content.ContentValues.TAG
 
 
 class UserListActivity : AppCompatActivity() {
@@ -23,6 +21,7 @@ class UserListActivity : AppCompatActivity() {
     var strCurrentUser = ""
     var mAuth: FirebaseAuth? = null
     lateinit var arrlststrUserEmails: ArrayList<String>
+    lateinit var arrlststrKeys: ArrayList<String>
     private lateinit var database: DatabaseReference
     var arrayAdapter: ArrayAdapter<*>? = null
 
@@ -32,24 +31,96 @@ class UserListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_user_list)
 
         title = "Users"
-
-        database = Firebase.database.reference
         lvUsers = findViewById(R.id.lstvwUsers)
         arrlststrUserEmails = ArrayList<String>()
-        mAuth = FirebaseAuth.getInstance()
-        //onStart();
-        arrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, arrlststrUserEmails)
+        arrlststrKeys = ArrayList<String>()
 
-        lvUsers?.adapter = arrayAdapter
+        try {//Firebase
+            database = Firebase.database.reference
+            mAuth = FirebaseAuth.getInstance()
 
-        lvUsers!!.setOnItemClickListener { parent, view, position, id ->
-            val intent = Intent(applicationContext, HomeActivity::class.java)
-            intent.putExtra("email", arrlststrUserEmails[position])
-            startActivity(intent)
+            strCurrentUser = mAuth?.currentUser?.email.toString()
+
+            //Adapter
+            arrayAdapter =
+                ArrayAdapter(this, android.R.layout.simple_list_item_1, arrlststrUserEmails)
+            lvUsers?.adapter = arrayAdapter
+
+            retrieveUsers()
+            //checkDBConnection()
+
+            lvUsers?.setOnItemClickListener { parent, view, position, id ->
+
+                val db = FirebaseFirestore.getInstance()
+                var data = intent
+                var imageName = data.getStringExtra("imageName")!!
+                var imageURL = data.getStringExtra("imageURL")!!
+                var message = data.getStringExtra("message")!!
+
+                var toUser = arrlststrKeys.get(position)
+
+                // Create a new snaps collection for the selected user
+                val snapMap: MutableMap<String, Any> = HashMap()
+                snapMap["from"] = strCurrentUser
+                snapMap["imageName"] = imageName
+                snapMap["imageURL"] = imageURL
+                snapMap["message"] = message
+
+
+                db.collection("users").document(toUser).collection("snaps")
+                    .add(snapMap)
+                    .addOnSuccessListener { documentReference ->
+                        Log.d(TAG,"DocumentSnapshot added with ID: " + documentReference.id)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w(TAG,"Error adding document",e)
+                    }
+
+
+/*                val snapMap = hashMapOf(
+                    "from" to strCurrentUser,
+                    "imageName" to imageName,
+                    "imageURL" to imageURL,
+                    "message" to message
+                )
+                val selectedUser = FirebaseDatabase.getInstance().reference.child("users")
+                    .child(arrlststrKeys.get(position))
+                val output = selectedUser.child("snaps").push().setValue(snapMap)
+                val docRef = db.collection("users").document(selectedUser.toString()).
+                    .child("snaps")
+                    .set("snaps")
+                    .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully written!") }
+                    .addOnFailureListener { e -> Log.w(TAG, "Error writing document", e) }*/
+
+                val intent = Intent(applicationContext, HomeActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(intent)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        strCurrentUser = mAuth!!.currentUser!!.email.toString()
-        retrieveUsers()
+    }
 
+    private fun checkDBConnection() {
+
+        //var connected:
+        val connectedRef = Firebase.database.getReference(".info/connected")
+        connectedRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val connected = snapshot.getValue(Boolean::class.java)
+                if (connected!!) {
+                    Log.d(TAG, "connected")
+                } else {
+                    Log.d(TAG, "not connected")
+                }
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.w(TAG, "Listener was cancelled")
+            }
+        });
+        //return connected
     }
 
     private fun retrieveUsers() {
@@ -58,12 +129,13 @@ class UserListActivity : AppCompatActivity() {
             val db = FirebaseFirestore.getInstance()
             db.collection("users")
                 .get()
-                .addOnCompleteListener{ task ->
+                .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         arrlststrUserEmails.clear()
+                        arrlststrKeys.clear()
                         for (document in task.result!!) {
-
                             arrlststrUserEmails.add(document.data.get("email").toString())
+                            arrlststrKeys.add(document.id)
                             lvUsers?.adapter = arrayAdapter
                             //Log.d(TAG, document.id + " => " + document.data)
                         }
@@ -77,30 +149,6 @@ class UserListActivity : AppCompatActivity() {
         }
 
     }
-
-    private fun getUsersList() {
-// Start listing users from the beginning, 1000 at a time.
-        // Start listing users from the beginning, 1000 at a time.
-/*        var page: ListUsersPage? = FirebaseAuth.getInstance().listUsers(null)
-        while (page != null) {
-            for (user in page.getValues()) {
-                System.out.println("User: " + user.getUid())
-            }
-            page = page.getNextPage()
-        }
-
-// Iterate through all users. This will still retrieve users in batches,
-// buffering no more than 1000 users in memory at a time.
-
-// Iterate through all users. This will still retrieve users in batches,
-// buffering no more than 1000 users in memory at a time.
-        page = FirebaseAuth.getInstance().listUsers(null)
-        for (user in page.iterateAll()) {
-            System.out.println("User: " + user.getUid())
-        }*/
-
-    }
-
 
 }
 

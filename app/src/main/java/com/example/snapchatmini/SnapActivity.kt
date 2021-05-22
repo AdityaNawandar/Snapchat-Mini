@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +31,8 @@ class SnapActivity : AppCompatActivity() {
     private var imageUri: Uri? = null
     var imgvwSnap: ImageView? = null
     private val PICK_IMAGE_REQUEST = 1
+    lateinit var edttxtMessage: EditText
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +67,8 @@ class SnapActivity : AppCompatActivity() {
         try {
             var randomKey = UUID.randomUUID().toString()
             if (imageUri != null) {
-
+                edttxtMessage = findViewById(R.id.edttxtMessage)
+                var strMessage = edttxtMessage.text.toString()
                 //progress dialog
                 val progressDialog = ProgressDialog(this)
                 progressDialog.setTitle("Uploading...")
@@ -81,13 +85,21 @@ class SnapActivity : AppCompatActivity() {
                 uploadTask.addOnSuccessListener(OnSuccessListener<Any?> {
                     progressDialog.dismiss()
                     Toast.makeText(this, "Uploaded", Toast.LENGTH_SHORT).show()
+
                     //Go to user list to choose user to send image to
                     val intent = Intent(this, UserListActivity::class.java)
+                    //add data to intent
+                    intent.putExtra("imageURL", imageUri.toString())
+                    intent.putExtra("imageName", randomKey)
+                    intent.putExtra("message", strMessage)
                     startActivity(intent)
-                }).addOnFailureListener(OnFailureListener { e ->
+
+                })
+                    .addOnFailureListener(OnFailureListener { e ->
                     progressDialog.dismiss()
                     Toast.makeText(this, "Failed " + e.message, Toast.LENGTH_SHORT).show()
-                }).addOnProgressListener(object : OnProgressListener<UploadTask.TaskSnapshot?> {
+                })
+                    .addOnProgressListener(object : OnProgressListener<UploadTask.TaskSnapshot?> {
                     override fun onProgress(taskSnapshot: UploadTask.TaskSnapshot) {
                         val progress: Double =
                             100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot
