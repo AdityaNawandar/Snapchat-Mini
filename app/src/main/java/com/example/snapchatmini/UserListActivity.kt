@@ -47,7 +47,6 @@ class UserListActivity : AppCompatActivity() {
             lvUsers?.adapter = arrayAdapter
 
             retrieveUsers()
-            //checkDBConnection()
 
             lvUsers?.setOnItemClickListener { parent, view, position, id ->
 
@@ -139,6 +138,7 @@ class UserListActivity : AppCompatActivity() {
                             lvUsers?.adapter = arrayAdapter
                             //Log.d(TAG, document.id + " => " + document.data)
                         }
+
                     } else {
                         Log.w(TAG, "Error getting documents.", task.exception)
                     }

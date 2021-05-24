@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SnapchatMini">
-        <activity android:name=".UserListActivity"></activity>
+        <activity android:name=".ViewSnapActivity"></activity>
+        <activity android:name=".UserListActivity" />
         <activity android:name=".SnapActivity" />
         <activity android:name=".HomeActivity" />
         <activity android:name=".MainActivity">

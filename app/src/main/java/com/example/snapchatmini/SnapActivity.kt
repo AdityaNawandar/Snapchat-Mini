@@ -89,7 +89,7 @@ class SnapActivity : AppCompatActivity() {
                     //Go to user list to choose user to send image to
                     val intent = Intent(this, UserListActivity::class.java)
                     //add data to intent
-                    intent.putExtra("imageURL", imageUri.toString())
+                    intent.putExtra("imageURL", imagesRef.downloadUrl.toString())
                     intent.putExtra("imageName", randomKey)
                     intent.putExtra("message", strMessage)
                     startActivity(intent)

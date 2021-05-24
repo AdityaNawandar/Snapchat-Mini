@@ -62,30 +62,44 @@ class MainActivity : AppCompatActivity() {
             mAuth!!.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-
-                        //Add user to database
+                        val currentUser = mAuth?.currentUser
+                        //#Add user to database
                         val db = FirebaseFirestore.getInstance()
-                        // Create a new user with a first and last name
+
+                        // 1.Create a new user with a first and last name
                         val user: MutableMap<String, Any> = HashMap()
                         user["email"] = strEmail
+                        val uid = currentUser!!.uid
 
-                        // Add a new document with a generated ID
+                        // 2.Add a new document with a generated ID
                         db.collection("users")
-                            .add(user)
-                            .addOnSuccessListener(OnSuccessListener<DocumentReference>
-                            { documentReference ->
-                                Log.d(TAG,"DocumentSnapshot added with ID: " + documentReference.id)
+                            .document(uid)
+                            .set(user)
+/*                            .addOnSuccessListener{
+                                @Override
+                                fun onSuccess(void: Void) {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+                                }
+                            }
+                            .addOnFailureListener{
+                                @Override
+                                fun onFailure(e: Exception) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            }*/
+
+                            .addOnSuccessListener(OnSuccessListener<Void>()
+                            { _ ->
+                                Log.d(TAG, "DocumentSnapshot added successfully")
                             })
                             .addOnFailureListener(OnFailureListener { e ->
-                                Log.w(TAG,"Error adding document",e)
+                                Log.w(TAG, "Error adding document", e)
                             })
 
                         // Sign in success, update UI with the signed-in user's information
                         Log.d("Status", "createUserWithEmail:success")
-                        val currentUser = mAuth!!.currentUser
                         updateUI(currentUser)
-                    }
-                    else {
+                    } else {
                         // If sign in fails, display a message to the user.
                         Log.w("Status", "createUserWithEmail:failure", task.exception)
                         Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show()
