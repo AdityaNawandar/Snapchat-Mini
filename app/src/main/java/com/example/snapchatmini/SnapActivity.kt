@@ -1,23 +1,23 @@
 package com.example.snapchatmini
 
 import android.app.ProgressDialog
-import android.content.Context
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.OnProgressListener
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
+import com.google.firebase.storage.ktx.component4
 import com.google.firebase.storage.ktx.storage
 import java.io.*
 import java.util.*
@@ -74,40 +74,38 @@ class SnapActivity : AppCompatActivity() {
                 progressDialog.setTitle("Uploading...")
                 progressDialog.show()
 
+                //#UPLOAD FILE
                 // Points to the root reference
                 val storageReference: StorageReference = storage.reference
-
-                // Defining the child of storageReference
                 val imagesRef = storageReference.child("images/" + randomKey)
-
                 val uploadTask = imagesRef.putFile(imageUri!!)
 
-                uploadTask.addOnSuccessListener(OnSuccessListener<Any?> {
-                    progressDialog.dismiss()
-                    Toast.makeText(this, "Uploaded", Toast.LENGTH_SHORT).show()
-
-                    //Go to user list to choose user to send image to
-                    val intent = Intent(this, UserListActivity::class.java)
-                    //add data to intent
-                    intent.putExtra("imageURL", imagesRef.downloadUrl.toString())
-                    intent.putExtra("imageName", randomKey)
-                    intent.putExtra("message", strMessage)
-                    startActivity(intent)
-
-                })
-                    .addOnFailureListener(OnFailureListener { e ->
-                    progressDialog.dismiss()
-                    Toast.makeText(this, "Failed " + e.message, Toast.LENGTH_SHORT).show()
-                })
-                    .addOnProgressListener(object : OnProgressListener<UploadTask.TaskSnapshot?> {
-                    override fun onProgress(taskSnapshot: UploadTask.TaskSnapshot) {
-                        val progress: Double =
-                            100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot
-                                .getTotalByteCount()
-                        progressDialog.setMessage("Uploaded " + progress.toInt() + "%")
+                val urlTask = uploadTask.continueWithTask { task ->
+                    if (!task.isSuccessful) {
+                        task.exception?.let {
+                            throw it
+                        }
                     }
-                })
+                    imagesRef.downloadUrl
+                }.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val downloadUri = task.result.toString()
+
+                        //Create intent to go to UserList(Activity) to choose from
+                        val intent = Intent(this, UserListActivity::class.java)
+                        //add data to intent
+                        intent.putExtra("imageURL", downloadUri)
+                        intent.putExtra("imageName", randomKey)
+                        intent.putExtra("message", strMessage)
+                        startActivity(intent)
+                    } else {
+                        // Handle failures
+                        // ...
+                    }
+                }
+
             }
+
         } catch (e: Exception) {
             e.printStackTrace()
         }

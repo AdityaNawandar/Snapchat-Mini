@@ -33,9 +33,9 @@ class ViewSnapActivity : AppCompatActivity() {
 
         val objBitmap: Bitmap
         try {
-            objBitmap =
-                task.execute(intent.getStringExtra("imageURL"))
-                    .get()!!
+            var downloadURL = intent.getStringExtra("imageURL")
+            objBitmap = task.execute(downloadURL).get()!!
+
             imgvwViewSnap!!.setImageBitmap(objBitmap)
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
